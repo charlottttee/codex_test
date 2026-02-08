@@ -93,11 +93,16 @@
                 <li>Private market stress</li>
               </ul>
             </div>
-            <button class="primary">Create scenario</button>
+            <button class="primary" id="create-scenario">Create scenario</button>
           </aside>
 
           <div class="scenario-list">
-            <article class="scenario-card">
+            <article
+              class="scenario-card is-active"
+              data-status="Updated 4h ago"
+              data-narrative="Narrative summary written for committee use, highlighting the assumptions, expected liquidity trajectory, and recommended policy responses. Export directly to board decks with a single click."
+              data-metrics='[{"label":"Liquidity trough","value":"Year 3","note":"Coverage 0.9x"},{"label":"Terminal value","value":"$3.8B","note":"-16% vs baseline"},{"label":"Action flags","value":"3","note":"Policy steps recommended"}]'
+            >
               <div class="scenario-meta">
                 <span class="pill">Severe</span>
                 <span class="pill muted">Liquidity</span>
@@ -117,10 +122,15 @@
                   <span>Spending at risk</span>
                 </div>
               </div>
-              <button class="secondary">Open narrative</button>
+              <button class="secondary" type="button">Open narrative</button>
             </article>
 
-            <article class="scenario-card">
+            <article
+              class="scenario-card"
+              data-status="Updated yesterday"
+              data-narrative="Rates stay restrictive while inflation persists, compressing real returns and drawing down liquidity buffers. The recovery stretches across seven years with targeted private market pacing."
+              data-metrics='[{"label":"Inflation peak","value":"6.2%","note":"Year 2 CPI"},{"label":"Recovery window","value":"7 years","note":"Real returns normalize"},{"label":"Spending pressure","value":"9%","note":"Shortfall risk"}]'
+            >
               <div class="scenario-meta">
                 <span class="pill">Moderate</span>
                 <span class="pill muted">Inflation</span>
@@ -140,10 +150,15 @@
                   <span>Spending at risk</span>
                 </div>
               </div>
-              <button class="secondary">Open narrative</button>
+              <button class="secondary" type="button">Open narrative</button>
             </article>
 
-            <article class="scenario-card">
+            <article
+              class="scenario-card"
+              data-status="Updated 2d ago"
+              data-narrative="A multi-year glidepath trims the spending rate with built-in guardrails. Committee communication focuses on protecting scholarships while preserving long-term purchasing power."
+              data-metrics='[{"label":"Glidepath length","value":"5 years","note":"Step-down cadence"},{"label":"Coverage ratio","value":"1.7x","note":"Improved buffer"},{"label":"Policy actions","value":"2","note":"Board approvals"}]'
+            >
               <div class="scenario-meta">
                 <span class="pill">Targeted</span>
                 <span class="pill muted">Policy</span>
@@ -163,7 +178,7 @@
                   <span>Spending at risk</span>
                 </div>
               </div>
-              <button class="secondary">Open narrative</button>
+              <button class="secondary" type="button">Open narrative</button>
             </article>
           </div>
 
@@ -171,18 +186,18 @@
             <div class="detail-header">
               <div>
                 <p class="eyebrow">Selected scenario</p>
-                <h3>Global liquidity freeze</h3>
+                <h3 id="detail-title">Global liquidity freeze</h3>
               </div>
-              <span class="status">Updated 4h ago</span>
+              <span class="status" id="detail-status">Updated 4h ago</span>
             </div>
             <div class="detail-body">
-              <p>
+              <p id="detail-narrative">
                 Narrative summary written for committee use, highlighting the
                 assumptions, expected liquidity trajectory, and recommended
                 policy responses. Export directly to board decks with a single
                 click.
               </p>
-              <div class="detail-metrics">
+              <div class="detail-metrics" id="detail-metrics">
                 <div>
                   <h4>Liquidity trough</h4>
                   <strong>Year 3</strong>
@@ -199,6 +214,35 @@
                   <span>Policy steps recommended</span>
                 </div>
               </div>
+              <form class="scenario-form" id="scenario-form">
+                <label>
+                  Scenario name
+                  <input name="title" type="text" placeholder="New scenario" required />
+                </label>
+                <label>
+                  Narrative summary
+                  <textarea
+                    name="narrative"
+                    rows="4"
+                    placeholder="Share the board-ready narrative"
+                    required
+                  ></textarea>
+                </label>
+                <label>
+                  Coverage ratio
+                  <input name="coverage" type="text" placeholder="1.3x" />
+                </label>
+                <label>
+                  Spending at risk
+                  <input name="spending" type="text" placeholder="12%" />
+                </label>
+                <div class="detail-actions">
+                  <button class="primary" type="submit">Save scenario</button>
+                  <button class="secondary" type="button" id="cancel-scenario">
+                    Cancel
+                  </button>
+                </div>
+              </form>
             </div>
             <div class="detail-actions">
               <button class="primary">Publish to board pack</button>
@@ -222,5 +266,106 @@
       </div>
       <small>© 2025 EndowmentOS. All rights reserved.</small>
     </footer>
+    <script>
+      const getScenarioCards = () =>
+        Array.from(document.querySelectorAll(".scenario-card"));
+      const detailTitle = document.getElementById("detail-title");
+      const detailStatus = document.getElementById("detail-status");
+      const detailNarrative = document.getElementById("detail-narrative");
+      const detailMetrics = document.getElementById("detail-metrics");
+      const createScenarioButton = document.getElementById("create-scenario");
+      const scenarioForm = document.getElementById("scenario-form");
+      const cancelScenarioButton = document.getElementById("cancel-scenario");
+      const scenarioList = document.querySelector(".scenario-list");
+
+      const renderMetrics = (metrics) => {
+        detailMetrics.innerHTML = "";
+        metrics.forEach((metric) => {
+          const metricCard = document.createElement("div");
+          metricCard.innerHTML = `
+            <h4>${metric.label}</h4>
+            <strong>${metric.value}</strong>
+            <span>${metric.note}</span>
+          `;
+          detailMetrics.appendChild(metricCard);
+        });
+      };
+
+      const selectScenario = (card) => {
+        getScenarioCards().forEach((item) => item.classList.remove("is-active"));
+        card.classList.add("is-active");
+        detailTitle.textContent = card.querySelector("h3").textContent;
+        detailStatus.textContent = card.dataset.status;
+        detailNarrative.textContent = card.dataset.narrative;
+        renderMetrics(JSON.parse(card.dataset.metrics));
+        scenarioForm.classList.remove("is-visible");
+      };
+
+      getScenarioCards().forEach((card) => {
+        card.addEventListener("click", () => selectScenario(card));
+        const button = card.querySelector("button");
+        button.addEventListener("click", (event) => {
+          event.stopPropagation();
+          selectScenario(card);
+        });
+      });
+
+      createScenarioButton.addEventListener("click", () => {
+        scenarioForm.classList.add("is-visible");
+        scenarioForm.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+
+      cancelScenarioButton.addEventListener("click", () => {
+        scenarioForm.reset();
+        scenarioForm.classList.remove("is-visible");
+      });
+
+      scenarioForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const formData = new FormData(scenarioForm);
+        const title = formData.get("title");
+        const narrative = formData.get("narrative");
+        const coverage = formData.get("coverage") || "1.3x";
+        const spending = formData.get("spending") || "12%";
+        const metrics = [
+          { label: "Coverage ratio", value: coverage, note: "New scenario" },
+          { label: "Spending at risk", value: spending, note: "Policy impact" },
+          { label: "Review window", value: "Next meeting", note: "Committee check" },
+        ];
+        const card = document.createElement("article");
+        card.className = "scenario-card";
+        card.dataset.status = "Drafted just now";
+        card.dataset.narrative = narrative;
+        card.dataset.metrics = JSON.stringify(metrics);
+        card.innerHTML = `
+          <div class="scenario-meta">
+            <span class="pill">Draft</span>
+            <span class="pill muted">Custom</span>
+          </div>
+          <h3>${title}</h3>
+          <p>${narrative}</p>
+          <div class="scenario-stats">
+            <div>
+              <strong>${coverage}</strong>
+              <span>Coverage ratio</span>
+            </div>
+            <div>
+              <strong>${spending}</strong>
+              <span>Spending at risk</span>
+            </div>
+          </div>
+          <button class="secondary" type="button">Open narrative</button>
+        `;
+        scenarioList.prepend(card);
+        getScenarioCards().forEach((item) => item.classList.remove("is-active"));
+        card.addEventListener("click", () => selectScenario(card));
+        card.querySelector("button").addEventListener("click", (event) => {
+          event.stopPropagation();
+          selectScenario(card);
+        });
+        selectScenario(card);
+        scenarioForm.reset();
+      });
+    </script>
   </body>
 </html>
