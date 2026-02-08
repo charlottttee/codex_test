@@ -452,6 +452,11 @@ button {
   gap: 1rem;
 }
 
+.scenario-card.is-active {
+  border: 2px solid rgba(29, 145, 139, 0.35);
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.18);
+}
+
 .scenario-meta {
   display: flex;
   gap: 0.5rem;
@@ -530,6 +535,40 @@ button {
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
+}
+
+.scenario-form {
+  display: none;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 1.5rem;
+  border-radius: 20px;
+}
+
+.scenario-form.is-visible {
+  display: grid;
+}
+
+.scenario-form label {
+  display: grid;
+  gap: 0.5rem;
+  font-weight: 600;
+}
+
+.scenario-form input,
+.scenario-form textarea {
+  padding: 0.65rem 0.8rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(11, 31, 58, 0.4);
+  color: var(--white);
+  font: inherit;
+}
+
+.scenario-form input::placeholder,
+.scenario-form textarea::placeholder {
+  color: rgba(255, 255, 255, 0.6);
 }
 
 @media (max-width: 720px) {
